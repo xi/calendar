@@ -59,6 +59,7 @@ def test(tpl, date):
 		return False
 	if tpl.get('weekday') is not None and date.weekday() != tpl['weekday']:
 		return False
+
 	if tpl.get('nth_of_month') is not None:
 		a = tpl['nth_of_month']
 		outside = date - datetime.timedelta(a * 7)
@@ -68,10 +69,12 @@ def test(tpl, date):
 		inside = date - datetime.timedelta(b * 7)
 		if inside.month != date.month:
 			return False
+
 	if tpl.get('from_easter') is not None:
 		d = date - datetime.timedelta(tpl['from_easter'])
 		if easter(d.year) != d:
 			return False
+
 	return True
 
 
