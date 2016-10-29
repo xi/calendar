@@ -50,17 +50,27 @@ def easter(year):
 	return datetime.date(year, 1, 1) + datetime.timedelta(e_q - 1)
 
 
-def test(tpl, date):
-	if tpl.get('day') is not None and date.day != tpl['day']:
-		return False
-	if tpl.get('month') is not None and date.month != tpl['month']:
-		return False
-	if tpl.get('year') is not None and date.year != tpl['year']:
-		return False
-	if tpl.get('weekday') is not None and date.weekday() != tpl['weekday']:
+def is_match(tpl, date):
+	if 'repeat' in tpl:
+		if 'day' in tpl and 'month' in tpl and 'year' in tpl:
+			reference = datetime.date(tpl['year'], tpl['month'], tpl['day'])
+			delta = date - reference
+			if delta.days % (7 * tpl['repeat']) != 0:
+				return False
+		else:
+			raise ValueError('repeat used without day, month and year')
+	else:
+		if 'day' in tpl and date.day != tpl['day']:
+			return False
+		if 'month' in tpl and date.month != tpl['month']:
+			return False
+		if 'year' in tpl and date.year != tpl['year']:
+			return False
+
+	if 'weekday' in tpl and date.weekday() != tpl['weekday']:
 		return False
 
-	if tpl.get('nth_of_month') is not None:
+	if 'nth_of_month' in tpl:
 		a = tpl['nth_of_month']
 		outside = date - datetime.timedelta(a * 7)
 		if outside.month == date.month:
@@ -70,7 +80,7 @@ def test(tpl, date):
 		if inside.month != date.month:
 			return False
 
-	if tpl.get('from_easter') is not None:
+	if 'from_easter' in tpl:
 		d = date - datetime.timedelta(tpl['from_easter'])
 		if easter(d.year) != d:
 			return False
@@ -84,13 +94,8 @@ def parse_weekday(s):
 
 
 def parse_date(s):
-	# FIXME: refactor
-	# FIXME: implement all (most?) bsd calendar formats
-	# FIXME: implement year
-	# FIXME: implement repeats
 	s = s.strip(' *')
 
-	# ...+2
 	m = re.match('^(.*)([+-]\d+)$', s)
 	if m:
 		s = m.groups()[0]
@@ -98,38 +103,40 @@ def parse_date(s):
 	else:
 		n = None
 
-	# 02/30
-	try:
-		_d = datetime.datetime.strptime(s, '%m/%d')
-		return {'day': _d.day, 'month': _d.month, 'nth_of_month': n}
-	except ValueError:
-		pass
-
-	# Tue
-	try:
-		return {'weekday': parse_weekday(s), 'nth_of_month': n}
-	except ValueError:
-		pass
-
-	# Jan Tue
-	try:
-		b, a = s.split(' ', 1)
-		_d = datetime.datetime.strptime(b, '%b')
-		return {'weekday': parse_weekday(a), 'month': _d.month, 'nth_of_month': n}
-	except ValueError:
-		pass
-
-	# 01/Tue
-	try:
-		m, a = s.split('/', 1)
-		_d = datetime.datetime.strptime(m, '%m')
-		return {'weekday': parse_weekday(a), 'month': _d.month, 'nth_of_month': n}
-	except ValueError:
-		pass
-
 	# Easter
 	if s == 'Easter':
-		return {'from_easter': n}
+		return {'from_easter': n or 0}
+
+	# date
+	try:
+		_d = datetime.datetime.strptime(s, '%d')
+		return {'day': _d.day}
+	except ValueError:
+		pass
+
+	try:
+		_d = datetime.datetime.strptime(s, '%m/%d')
+		return {'day': _d.day, 'month': _d.month}
+	except ValueError:
+		pass
+
+	try:
+		_d = datetime.datetime.strptime(s, '%Y/%m/%d')
+		tpl = {'day': _d.day, 'month': _d.month, 'year': _d.year}
+		if n is not None:
+			tpl['repeat'] = n
+		return tpl
+	except ValueError:
+		pass
+
+	# Weekday
+	try:
+		tpl = {'weekday': parse_weekday(s)}
+		if n is not None:
+			tpl['nth_of_month'] = n
+		return tpl
+	except ValueError:
+		pass
 
 	raise ValueError('Invalid date template: %s', s)
 
@@ -166,7 +173,7 @@ def _parse_args(argv=None):
 	parser.add_argument('-f', nargs='?', dest='file', metavar='calendarfile',
 		default=os.path.expanduser('~/.calendar/calendar'))
 	parser.add_argument('-t', nargs='?', dest='today', metavar='[[yyyy.mm.dd',
-		help='Act like the specified value is “today” instead of using the '
+		help='Act like the specified value is "today" instead of using the '
 		'current date.')
 	return parser.parse_args(argv)
 
@@ -199,7 +206,7 @@ def main():
 	date = args.d_start
 	while date <= args.d_end:
 		for tpl, desc in entries:
-			if test(tpl, date):
+			if is_match(tpl, date):
 				print(date.strftime('%b %d') + '\t' + desc)
 		date = date + datetime.timedelta(1)
 
