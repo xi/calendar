@@ -11,11 +11,15 @@ __version__ = '0.0.0'
 TODAY = datetime.date.today()
 
 
-def easter(year):
+def easter(year, paskha=False):
 	# https://de.wikipedia.org/wiki/Gau%C3%9Fsche_Osterformel#Eine_erg.C3.A4nzte_Osterformel
 	k = int(year / 100)
-	s = 2 - int((3 * k + 3) / 4)
-	m = 17 - s - int((8 * k + 13) / 25)
+	if paskha:
+		s = 0
+		m = 15
+	else:
+		s = 2 - int((3 * k + 3) / 4)
+		m = 17 - s - int((8 * k + 13) / 25)
 	a = year % 19
 	d = (19 * a + m) % 30
 	r = int((d + int(a / 11)) / 29)
@@ -23,6 +27,9 @@ def easter(year):
 	sz = 7 - (year + int(year / 4) + s) % 7
 	oe = 7 - (og - sz) % 7
 	os = og + oe
+
+	if paskha:
+		os += k - int(year / 400) - 2
 
 	return datetime.date(year, 3, 1) + datetime.timedelta(os - 1)
 
