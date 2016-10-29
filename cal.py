@@ -11,45 +11,20 @@ __version__ = '0.0.0'
 TODAY = datetime.date.today()
 
 
-def is_leap(year):
-	if year % 4 != 0:
-		return False
-	elif year % 100 != 0:
-		return True
-	elif year % 400 != 0:
-		return False
-	else:
-		return True
-
-
 def easter(year):
-	"""From debian bsdmainutils."""
-	# silly, but it works
-	e_a = year % 19
-	e_b = int(year / 100)
-	e_c = year % 100
+	# https://de.wikipedia.org/wiki/Gau%C3%9Fsche_Osterformel#Eine_erg.C3.A4nzte_Osterformel
+	k = int(year / 100)
+	s = 2 - int((3 * k + 3) / 4)
+	m = 17 - s - int((8 * k + 13) / 25)
+	a = year % 19
+	d = (19 * a + m) % 30
+	r = int((d + int(a / 11)) / 29)
+	og = 21 + d - r
+	sz = 7 - (year + int(year / 4) + s) % 7
+	oe = 7 - (og - sz) % 7
+	os = og + oe
 
-	e_d = int(e_b / 4)
-	e_e = e_b % 4
-	e_f = int((e_b + 8) / 25)
-	e_g = int((e_b + 1 - e_f) / 3)
-	e_h = ((19 * e_a) + 15 + e_b - (e_d + e_g)) % 30
-	e_i = int(e_c / 4)
-	e_k = e_c % 4
-	e_l = (32 + 2 * e_e + 2 * e_i - (e_h + e_k)) % 7
-	e_m = int((e_a + 11 * e_h + 22 * e_l) / 451)
-	e_n = int((e_h + e_l + 114 - (7 * e_m)) / 31)
-	e_p = (e_h + e_l + 114 - (7 * e_m)) % 31
-	e_p = e_p + 1
-
-	e_q = 31 + 28 + e_p
-	if is_leap(year):
-		e_q += 1
-
-	if e_n == 4:
-		e_q += 31
-
-	return datetime.date(year, 1, 1) + datetime.timedelta(e_q - 1)
+	return datetime.date(year, 3, 1) + datetime.timedelta(os - 1)
 
 
 def is_match(tpl, date):
