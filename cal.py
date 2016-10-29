@@ -50,45 +50,29 @@ def easter(year):
 	return datetime.date(year, 1, 1) + datetime.timedelta(e_q - 1)
 
 
-class DateTemplate:
-	def __init__(
-			self,
-			day=None,
-			month=None,
-			year=None,
-			weekday=None,
-			nth_of_month=None,
-			from_easter=None):
-		self.day = day
-		self.month = month
-		self.year = year
-		self.weekday = weekday
-		self.nth_of_month = nth_of_month
-		self.from_easter = from_easter
-
-	def test(self, date):
-		if self.day is not None and date.day != self.day:
+def test(tpl, date):
+	if tpl.get('day') is not None and date.day != tpl['day']:
+		return False
+	if tpl.get('month') is not None and date.month != tpl['month']:
+		return False
+	if tpl.get('year') is not None and date.year != tpl['year']:
+		return False
+	if tpl.get('weekday') is not None and date.weekday() != tpl['weekday']:
+		return False
+	if tpl.get('nth_of_month') is not None:
+		a = tpl['nth_of_month']
+		outside = date - datetime.timedelta(a * 7)
+		if outside.month == date.month:
 			return False
-		if self.month is not None and date.month != self.month:
+		b = a + 1 if a < 0 else a - 1
+		inside = date - datetime.timedelta(b * 7)
+		if inside.month != date.month:
 			return False
-		if self.year is not None and date.year != self.year:
+	if tpl.get('from_easter') is not None:
+		d = date - datetime.timedelta(tpl['from_easter'])
+		if easter(d.year) != d:
 			return False
-		if self.weekday is not None and date.weekday() != self.weekday:
-			return False
-		if self.nth_of_month is not None:
-			a = self.nth_of_month
-			outside = date - datetime.timedelta(a * 7)
-			if outside.month == date.month:
-				return False
-			b = a + 1 if a < 0 else a - 1
-			inside = date - datetime.timedelta(b * 7)
-			if inside.month != date.month:
-				return False
-		if self.from_easter is not None:
-			d = date - datetime.timedelta(self.from_easter)
-			if easter(d.year) != d:
-				return False
-		return True
+	return True
 
 
 def parse_weekday(s):
@@ -114,13 +98,13 @@ def parse_date(s):
 	# 02/30
 	try:
 		_d = datetime.datetime.strptime(s, '%m/%d')
-		return DateTemplate(day=_d.day, month=_d.month, nth_of_month=n)
+		return {'day': _d.day, 'month': _d.month, 'nth_of_month': n}
 	except ValueError:
 		pass
 
 	# Tue
 	try:
-		return DateTemplate(weekday=parse_weekday(s), nth_of_month=n)
+		return {'weekday': parse_weekday(s), 'nth_of_month': n}
 	except ValueError:
 		pass
 
@@ -128,7 +112,7 @@ def parse_date(s):
 	try:
 		b, a = s.split(' ', 1)
 		_d = datetime.datetime.strptime(b, '%b')
-		return DateTemplate(weekday=parse_weekday(a), month=_d.month, nth_of_month=n)
+		return {'weekday': parse_weekday(a), 'month': _d.month, 'nth_of_month': n}
 	except ValueError:
 		pass
 
@@ -136,13 +120,13 @@ def parse_date(s):
 	try:
 		m, a = s.split('/', 1)
 		_d = datetime.datetime.strptime(m, '%m')
-		return DateTemplate(weekday=parse_weekday(a), month=_d.month, nth_of_month=n)
+		return {'weekday': parse_weekday(a), 'month': _d.month, 'nth_of_month': n}
 	except ValueError:
 		pass
 
 	# Easter
 	if s == 'Easter':
-		return DateTemplate(from_easter=n)
+		return {'from_easter': n}
 
 	raise ValueError('Invalid date template: %s', s)
 
@@ -212,7 +196,7 @@ def main():
 	date = args.d_start
 	while date <= args.d_end:
 		for tpl, desc in entries:
-			if tpl.test(date):
+			if test(tpl, date):
 				print(date.strftime('%b %d') + '\t' + desc)
 		date = date + datetime.timedelta(1)
 
