@@ -1,4 +1,41 @@
-"""asd"""
+#!/usr/bin/env python
+"""BSD calendar reimplementation
+
+The calendar utility reads events from plain text files and outputs today's
+events. The files look something like this::
+
+    #include <holiday>
+    #include <birthday>
+
+    06/15\tJune 15
+    Thu\tEvery Thursday.
+    15\t15th of every month.
+
+    05/Sun+2\tsecond Sunday in May (Muttertag)
+    04/Sun-1\tlast Sunday in April
+
+    Easter-2\tGood Friday (2 days before Easter)
+    Paskha\tOrthodox Easter
+
+This implementation adds some new features while dropping others, most notably,
+the date formats are not completely compatible::
+
+    # added formats
+    1999/06/15\tJune 15 1999
+    1999/06/15*\tJune 15 (usefull for birthdays)
+    1999/05/Sun+2\tsecond Sunday in May 1999
+    1999/06/15+2\tJune 15 1999 and every second week since then
+
+    # removed formats (mostly alternative formats)
+    Jun. 15\t06/15
+    15 June\t06/15
+    Thursday\tThu
+    June\t06/01
+    15 *\t15
+
+    May Sun+2\t05/Sun+2
+    04/SunLast\t04/Sun-1
+"""
 
 import os
 import re
@@ -185,7 +222,7 @@ def get_entries(path):
 
 
 def _parse_args(argv=None):
-	parser = argparse.ArgumentParser(description=__doc__)
+	parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
 	parser.add_argument('--version', '-V', action='version', version=__version__)
 	parser.add_argument('-A', type=int, dest='days_after', default=1, nargs='?',
 		help='Print lines from today and next num days (forward, future).')
