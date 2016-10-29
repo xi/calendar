@@ -8,6 +8,8 @@ import datetime
 
 __version__ = '0.0.0'
 
+TODAY = datetime.date.today()
+
 
 def is_leap(year):
 	if year % 4 != 0:
@@ -94,8 +96,6 @@ def parse_weekday(s):
 
 
 def parse_date(s):
-	s = s.strip(' *')
-
 	m = re.match('^(.*)([+-]\d+)$', s)
 	if m:
 		s = m.groups()[0]
@@ -103,33 +103,44 @@ def parse_date(s):
 	else:
 		n = None
 
-	# Easter
+	# easter
 	if s == 'Easter':
 		return {'from_easter': n or 0}
 
 	# date
 	try:
-		_d = datetime.datetime.strptime(s, '%d')
-		return {'day': _d.day}
+		a = s.rstrip('*')
+		_d = datetime.datetime.strptime(a, '%d')
+		tpl = {'day': _d.day}
+		if not s.endswith('*'):
+			tpl['year'] = TODAY.year
+		return tpl
 	except ValueError:
 		pass
 
 	try:
-		_d = datetime.datetime.strptime(s, '%m/%d')
-		return {'day': _d.day, 'month': _d.month}
+		a = s.rstrip('*')
+		_d = datetime.datetime.strptime(a, '%m/%d')
+		tpl = {'day': _d.day, 'month': _d.month}
+		if not s.endswith('*'):
+			tpl['year'] = TODAY.year
+		return tpl
 	except ValueError:
 		pass
 
 	try:
-		_d = datetime.datetime.strptime(s, '%Y/%m/%d')
-		tpl = {'day': _d.day, 'month': _d.month, 'year': _d.year}
+		a = s.rstrip('*')
+		_d = datetime.datetime.strptime(a, '%Y/%m/%d')
+		tpl = {'day': _d.day, 'month': _d.month}
+		if not s.endswith('*'):
+			tpl['year'] = _d.year
 		if n is not None:
 			tpl['repeat'] = n
 		return tpl
 	except ValueError:
 		pass
 
-	# Weekday
+	# weekday
 	try:
 		tpl = {'weekday': parse_weekday(s)}
 		if n is not None:
@@ -201,7 +212,6 @@ def _parse_args(argv=None):
 def parse_args(argv=None):
 	args = _parse_args(argv)
 
-	today = datetime.date.today()
 	replace = {}
 
 	if args.today:
@@ -212,7 +222,7 @@ def parse_args(argv=None):
 		if len(args.today) == 8:
 			replace['year'] = int(args.today[-8:-4])
 
-	args.d_today = today.replace(**replace)
+	args.d_today = TODAY.replace(**replace)
 	args.d_start = args.d_today - datetime.timedelta(args.days_before)
 	args.d_end = args.d_today + datetime.timedelta(args.days_after)
 
@@ -227,7 +237,8 @@ def main():
 	while date <= args.d_end:
 		for tpl, desc in entries:
 			if is_match(tpl, date):
-				print(date.strftime('%b %d') + '\t' + desc)
+				star = '' if 'year' in tpl else '*'
+				print(date.strftime('%b %d') + star + '\t' + desc)
 		date = date + datetime.timedelta(1)
 
 

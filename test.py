@@ -8,16 +8,33 @@ sys.path.insert(0, root)
 
 import cal
 
+TODAY = date.today()
+
 
 class TestParseDate(unittest.TestCase):
 	def test_dd(self):
 		tpl = cal.parse_date('13')
 		self.assertEqual(tpl, {
 			'day': 13,
+			'year': TODAY.year,
+		})
+
+	def test_dd_star(self):
+		tpl = cal.parse_date('13*')
+		self.assertEqual(tpl, {
+			'day': 13,
 		})
 
 	def test_mmdd(self):
 		tpl = cal.parse_date('02/13')
+		self.assertEqual(tpl, {
+			'day': 13,
+			'month': 2,
+			'year': TODAY.year,
+		})
+
+	def test_mmdd_star(self):
+		tpl = cal.parse_date('02/13*')
 		self.assertEqual(tpl, {
 			'day': 13,
 			'month': 2,
@@ -29,6 +46,13 @@ class TestParseDate(unittest.TestCase):
 			'day': 13,
 			'month': 2,
 			'year': 1999,
+		})
+
+	def test_yyyymmdd_star(self):
+		tpl = cal.parse_date('1999/02/13*')
+		self.assertEqual(tpl, {
+			'day': 13,
+			'month': 2,
 		})
 
 	def test_yyyymmdd_repeat(self):
