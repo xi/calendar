@@ -53,6 +53,23 @@ class TestParseDate(unittest.TestCase):
 			'nth_of_month': -1,
 		})
 
+	def test_mm_weekday(self):
+		tpl = cal.parse_date('02/Sat+2')
+		self.assertEqual(tpl, {
+			'month': 2,
+			'weekday': 5,
+			'nth_of_month': 2,
+		})
+
+	def test_yyyymm_weekday(self):
+		tpl = cal.parse_date('1999/02/Sat+2')
+		self.assertEqual(tpl, {
+			'month': 2,
+			'year': 1999,
+			'weekday': 5,
+			'nth_of_month': 2,
+		})
+
 	def test_easter(self):
 		tpl = cal.parse_date('Easter')
 		self.assertEqual(tpl, {
@@ -121,6 +138,30 @@ class TestIsMatch(unittest.TestCase):
 		self.assertTrue(cal.is_match(tpl, date(1999, 2, 13)))
 		self.assertFalse(cal.is_match(tpl, date(1999, 2, 14)))
 		self.assertFalse(cal.is_match(tpl, date(1999, 2, 20)))
+
+	def test_mm_weekday(self):
+		tpl = {
+			'month': 2,
+			'weekday': 5,
+			'nth_of_month': 2,
+		}
+		self.assertTrue(cal.is_match(tpl, date(1999, 2, 13)))
+		self.assertFalse(cal.is_match(tpl, date(1999, 2, 14)))
+		self.assertFalse(cal.is_match(tpl, date(1999, 2, 20)))
+		self.assertFalse(cal.is_match(tpl, date(1999, 3, 13)))
+
+	def test_yyyymm_weekday(self):
+		tpl = {
+			'month': 2,
+			'year': 1999,
+			'weekday': 5,
+			'nth_of_month': 2,
+		}
+		self.assertTrue(cal.is_match(tpl, date(1999, 2, 13)))
+		self.assertFalse(cal.is_match(tpl, date(1999, 2, 14)))
+		self.assertFalse(cal.is_match(tpl, date(1999, 2, 20)))
+		self.assertFalse(cal.is_match(tpl, date(1999, 3, 13)))
+		self.assertFalse(cal.is_match(tpl, date(2000, 2, 12)))
 
 	def test_easter(self):
 		tpl = {

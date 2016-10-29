@@ -138,6 +138,26 @@ def parse_date(s):
 	except ValueError:
 		pass
 
+	try:
+		d, w = s.rsplit('/', 1)
+		_d = datetime.datetime.strptime(d, '%m')
+		tpl = {'month': _d.month, 'weekday': parse_weekday(w)}
+		if n is not None:
+			tpl['nth_of_month'] = n
+		return tpl
+	except ValueError:
+		pass
+
+	try:
+		d, w = s.rsplit('/', 1)
+		_d = datetime.datetime.strptime(d, '%Y/%m')
+		tpl = {'month': _d.month, 'year': _d.year, 'weekday': parse_weekday(w)}
+		if n is not None:
+			tpl['nth_of_month'] = n
+		return tpl
+	except ValueError:
+		pass
+
 	raise ValueError('Invalid date template: %s', s)
 
 
