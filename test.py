@@ -174,6 +174,18 @@ class TestParseDate(unittest.TestCase):
 			'from_easter': 30,
 		})
 
+	def test_paskha(self):
+		tpl = cal.parse_date('Paskha')
+		self.assertEqual(tpl, {
+			'from_paskha': 0,
+		})
+
+	def test_paskha_with_offset(self):
+		tpl = cal.parse_date('Paskha+30')
+		self.assertEqual(tpl, {
+			'from_paskha': 30,
+		})
+
 
 class TestIsMatch(unittest.TestCase):
 	def test_dd(self):
@@ -268,3 +280,17 @@ class TestIsMatch(unittest.TestCase):
 		}
 		self.assertTrue(cal.is_match(tpl, date(2000, 4, 25)))
 		self.assertFalse(cal.is_match(tpl, date(2000, 4, 23)))
+
+	def test_paskha(self):
+		tpl = {
+			'from_paskha': 0,
+		}
+		self.assertTrue(cal.is_match(tpl, date(2000, 4, 30)))
+		self.assertFalse(cal.is_match(tpl, date(2000, 4, 28)))
+
+	def test_paskha_with_offset(self):
+		tpl = {
+			'from_paskha': -2,
+		}
+		self.assertTrue(cal.is_match(tpl, date(2000, 4, 28)))
+		self.assertFalse(cal.is_match(tpl, date(2000, 4, 30)))

@@ -69,6 +69,11 @@ def is_match(tpl, date):
 		if easter(d.year) != d:
 			return False
 
+	if 'from_paskha' in tpl:
+		d = date - datetime.timedelta(tpl['from_paskha'])
+		if easter(d.year, paskha=True) != d:
+			return False
+
 	return True
 
 
@@ -88,6 +93,9 @@ def parse_date(s):
 	# easter
 	if s == 'Easter':
 		return {'from_easter': n or 0}
+
+	if s == 'Paskha':
+		return {'from_paskha': n or 0}
 
 	# date
 	try:
