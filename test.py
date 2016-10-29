@@ -83,7 +83,7 @@ class TestIsMatch(unittest.TestCase):
 		self.assertFalse(cal.is_match(tpl, date(1999, 2, 14)))
 		self.assertFalse(cal.is_match(tpl, date(1999, 3, 13)))
 
-	def test_yymmdd(self):
+	def test_yyyymmdd(self):
 		tpl = {
 			'day': 13,
 			'month': 2,
@@ -94,7 +94,7 @@ class TestIsMatch(unittest.TestCase):
 		self.assertFalse(cal.is_match(tpl, date(1999, 3, 13)))
 		self.assertFalse(cal.is_match(tpl, date(2000, 2, 13)))
 
-	def test_yymmdd_repeat(self):
+	def test_yyyymmdd_repeat(self):
 		tpl = {
 			'day': 13,
 			'month': 2,
