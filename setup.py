@@ -12,7 +12,7 @@ with open('cal.py') as fh:
         line = line.rstrip()
 
         if line.startswith('__version__ = '):
-            version = line.strip()[14:]
+            version = line.strip()[15:-1]
 
         if docstring_started:
             if line == '"""':
