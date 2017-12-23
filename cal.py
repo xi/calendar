@@ -151,6 +151,8 @@ def parse_date(s):
 		tpl = {'day': _d.day, 'month': _d.month}
 		if not s.endswith('*'):
 			tpl['year'] = TODAY.year
+			if _d.month < TODAY.month:
+				tpl['year'] += 1
 		return tpl
 	except ValueError:
 		pass
