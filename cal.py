@@ -232,7 +232,7 @@ def _parse_args(argv=None):
 		help='Print lines from today and previous num days (backward, past).')
 	parser.add_argument('-f', nargs='?', dest='file', metavar='calendarfile',
 		default=os.path.expanduser('~/.calendar/calendar'))
-	parser.add_argument('-t', nargs='?', dest='today', metavar='[[yyyy.mm.dd',
+	parser.add_argument('-t', nargs='?', dest='today', metavar='yyyy.mm.dd',
 		help='Act like the specified value is "today" instead of using the '
 		'current date.')
 	parser.add_argument('--by-day', '-b', action='store_true',
