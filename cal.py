@@ -267,7 +267,7 @@ def main():
 		for tpl, desc in entries:
 			if is_match(tpl, date):
 				star = '' if 'year' in tpl else '*'
-				print(date.strftime('%b %d') + star + '\t' + desc)
+				print(date.strftime('%a %b %d') + star + '\t' + desc)
 		date = date + datetime.timedelta(1)
 
 
