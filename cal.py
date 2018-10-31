@@ -235,6 +235,8 @@ def _parse_args(argv=None):
 	parser.add_argument('-t', nargs='?', dest='today', metavar='[[yyyy.mm.dd',
 		help='Act like the specified value is "today" instead of using the '
 		'current date.')
+	parser.add_argument('--by-day', '-b', action='store_true',
+		help='Print a single line for each day')
 	return parser.parse_args(argv)
 
 
@@ -264,10 +266,18 @@ def main():
 
 	date = args.d_start
 	while date <= args.d_end:
-		for tpl, desc in entries:
-			if is_match(tpl, date):
-				star = '' if 'year' in tpl else '*'
-				print(date.strftime('%a %b %d') + star + '\t' + desc)
+		ds = date.strftime('%a %b %d')
+		if args.by_day:
+			events = []
+			for tpl, desc in entries:
+				if is_match(tpl, date):
+					events.append(desc)
+			print(ds + '\t' + '; '.join(events))
+		else:
+			for tpl, desc in entries:
+				if is_match(tpl, date):
+					star = '' if 'year' in tpl else '*'
+					print(ds + star + '\t' + desc)
 		date = date + datetime.timedelta(1)
 
 
