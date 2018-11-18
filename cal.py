@@ -226,13 +226,13 @@ def get_entries(path):
 def _parse_args(argv=None):
 	parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
 	parser.add_argument('--version', '-V', action='version', version=__version__)
-	parser.add_argument('-A', type=int, dest='days_after', default=1, nargs='?',
+	parser.add_argument('-A', type=int, dest='days_after', default=1,
 		help='Print lines from today and next num days (forward, future).')
-	parser.add_argument('-B', type=int, dest='days_before', default=0, nargs='?',
+	parser.add_argument('-B', type=int, dest='days_before', default=0,
 		help='Print lines from today and previous num days (backward, past).')
-	parser.add_argument('-f', nargs='?', dest='file', metavar='calendarfile',
+	parser.add_argument('-f', dest='file', metavar='calendarfile',
 		default=os.path.expanduser('~/.calendar/calendar'))
-	parser.add_argument('-t', nargs='?', dest='today', metavar='yyyy.mm.dd',
+	parser.add_argument('-t', dest='today', metavar='yyyy.mm.dd',
 		help='Act like the specified value is "today" instead of using the '
 		'current date.')
 	parser.add_argument('--by-day', '-b', action='store_true',
