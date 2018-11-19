@@ -379,6 +379,7 @@ void help() {
 	);
 }
 
+#ifndef test
 int main(int argc, char *argv[]) {
 	int days = 3;
 
@@ -408,3 +409,4 @@ int main(int argc, char *argv[]) {
 
 	free_lines(first);
 }
+#endif
