@@ -385,7 +385,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	struct line *first = get_lines("~/DATES");
+	struct line *first = get_lines("~/.calendar/calendar");
 
 	time_t t = time(NULL);
 	struct tm *today = localtime(&t);
