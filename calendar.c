@@ -56,6 +56,8 @@ struct tpl {
 	int nth_of_month;
 	int from_easter;
 	int from_paskha;
+	bool easter;
+	bool paskha;
 };
 
 struct line {
@@ -179,16 +181,16 @@ bool is_match(struct tpl tpl, struct tm date) {
 		}
 	}
 
-	if (tpl.from_easter) {
+	if (tpl.easter) {
 		struct tm d = add_days(date, -tpl.from_easter);
-		if (!date_comp(easter(d.tm_year, false), d)) {
+		if (!date_comp(easter(d.tm_year + 1900, false), d)) {
 			return false;
 		}
 	}
 
-	if (tpl.from_paskha) {
+	if (tpl.paskha) {
 		struct tm d = add_days(date, -tpl.from_paskha);
-		if (!date_comp(easter(d.tm_year, true), d)) {
+		if (!date_comp(easter(d.tm_year + 1900, true), d)) {
 			return false;
 		}
 	}
@@ -206,24 +208,22 @@ struct tpl parse_date(char *s) {
 		n = atoi(strtok(NULL, ""));
 	} else if (strchr(s, '-')) {
 		strtok(s, "-");
-		n = atoi(strtok(NULL, ""));
+		n = -atoi(strtok(NULL, ""));
 	}
 
 	/* easter */
 	if (strcmp(s, "Easter") == 0) {
+		tpl.easter = true;
 		tpl.from_easter = n;
 		return tpl;
 	}
 	if (strcmp(s, "Paskha") == 0) {
+		tpl.paskha = true;
 		tpl.from_paskha = n;
 		return tpl;
 	}
 
-	bool star = false;
-	if (strcmp(s + strlen(s) - strlen("*"), "*") == 0) {
-		strcpy(s + strlen(s) - strlen("*"), "");
-		star = true;
-	}
+	bool star = strcmp(s + strlen(s) - strlen("*"), "*") == 0;
 
 	struct tm match;
 
@@ -239,16 +239,10 @@ struct tpl parse_date(char *s) {
 	} else if (strptime(s, "%m/%a", &match)) {
 		tpl.month = match.tm_mon + 1;
 		tpl.weekday = match.tm_wday + 1;
-		if (!star) {
-			tpl.year = TODAY->tm_year + 1900;
-		}
 		tpl.nth_of_month = n;
 		return tpl;
 	} else if (strptime(s, "%a", &match)) {
 		tpl.weekday = match.tm_wday + 1;
-		if (!star) {
-			tpl.year = TODAY->tm_year + 1900;
-		}
 		tpl.nth_of_month = n;
 		return tpl;
 	}
