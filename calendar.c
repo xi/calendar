@@ -64,6 +64,37 @@ struct line {
 	char *desc;
 };
 
+struct tm mkdate(int year, int month, int day) {
+	struct tm tm = {
+		.tm_year=year - 1900,
+		.tm_mon=month - 1,
+		.tm_mday=day,
+	};
+	mktime(&tm);
+	return tm;
+}
+
+struct tpl mktpl() {
+	struct tpl tpl = {
+		.year=0,
+		.month=0,
+		.day=0,
+		.repeat=0,
+		.weekday=0,
+		.nth_of_month=0,
+		.from_easter=0,
+		.from_paskha=0,
+		.easter=false,
+		.paskha=false,
+	};
+	return tpl;
+}
+
+struct tm *today() {
+	time_t t = time(NULL);
+	return localtime(&t);
+}
+
 struct tm easter(int year, bool paskha) {
 	/* https://de.wikipedia.org/wiki/Gau%C3%9Fsche_Osterformel#Eine_erg.C3.A4nzte_Osterformel */
 	int k = year / 100;
@@ -85,24 +116,19 @@ struct tm easter(int year, bool paskha) {
 		os += k - year / 400 - 2;
 	}
 
-	struct tm t = {
-		.tm_year=year - 1900,
-		.tm_mon=2,
-		.tm_mday=os,
-	};
-	mktime(&t);
+	struct tm tm = mkdate(year, 3, os);
 
-	return t;
+	return tm;
 }
 
 struct tm add_days(struct tm date, int days) {
-	struct tm d = {
+	struct tm tm = {
 		.tm_year=date.tm_year,
 		.tm_mon=date.tm_mon,
 		.tm_mday=date.tm_mday + days,
 	};
-	mktime(&d);
-	return d;
+	mktime(&tm);
+	return tm;
 }
 
 bool date_comp(struct tm a, struct tm b) {
@@ -115,11 +141,7 @@ bool date_comp(struct tm a, struct tm b) {
 bool is_match(struct tpl tpl, struct tm date) {
 	if (tpl.repeat) {
 		if (tpl.day && tpl.month && tpl.year) {
-			struct tm reference = {
-				.tm_year=tpl.year - 1900,
-				.tm_mon=tpl.month - 1,
-				.tm_mday=tpl.day,
-			};
+			struct tm reference = mkdate(tpl.year, tpl.month, tpl.day);
 			time_t delta = difftime(mktime(&reference), mktime(&date));
 			int delta_days = delta / 60 / 60 / 24;
 			if (delta_days % (7 * tpl.repeat) != 0) {
@@ -175,19 +197,8 @@ bool is_match(struct tpl tpl, struct tm date) {
 }
 
 struct tpl parse_date(char *s) {
-	time_t t = time(NULL);
-	struct tm *TODAY = localtime(&t);
-
-	struct tpl tpl = {
-		.repeat=0,
-		.day=0,
-		.month=0,
-		.year=0,
-		.weekday=0,
-		.nth_of_month=0,
-		.from_easter=0,
-		.from_paskha=0,
-	};
+	struct tm *TODAY = today();
+	struct tpl tpl = mktpl();
 
 	int n = 0;
 	if (strchr(s, '+')) {
@@ -387,12 +398,11 @@ int main(int argc, char *argv[]) {
 
 	struct line *first = get_lines("~/.calendar/calendar");
 
-	time_t t = time(NULL);
-	struct tm *today = localtime(&t);
+	struct tm *TODAY = today();
 
 	struct tm day;
 	for (int i = 0; i < days; i++) {
-		day = add_days(*today, i);
+		day = add_days(*TODAY, i);
 		print_matches(day, first);
 	}
 
