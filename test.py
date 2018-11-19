@@ -98,7 +98,7 @@ class TestParseDate(unittest.TestCase):
 		self.assertEqual(tpl, {
 			'day': 13,
 			'month': 2,
-			'year': TODAY.year,
+			'year': TODAY.year + (1 if TODAY.month > 2 else 0),
 		})
 
 	def test_mmdd_star(self):
