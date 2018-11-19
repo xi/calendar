@@ -341,7 +341,7 @@ void print_matches(struct tm date, struct line *first) {
 		if (is_match(line->tpl, date)) {
 			if (!is_first) printf("; ");
 			is_first = false;
-			printf(line->desc);
+			printf("%s", line->desc);
 		}
 		line = line->next;
 	}
