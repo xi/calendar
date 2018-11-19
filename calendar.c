@@ -221,7 +221,7 @@ struct tpl parse_date(char *s) {
 		tpl.month = match.tm_mon + 1;
 		tpl.weekday = match.tm_wday + 1;
 		if (!star) {
-			tpl.year = match.tm_mday + 2000;
+			tpl.year = match.tm_year + 1900;
 		}
 		tpl.nth_of_month = n;
 		return tpl;
@@ -229,14 +229,14 @@ struct tpl parse_date(char *s) {
 		tpl.month = match.tm_mon + 1;
 		tpl.weekday = match.tm_wday + 1;
 		if (!star) {
-			tpl.year = TODAY->tm_mday + 2000;
+			tpl.year = TODAY->tm_year + 1900;
 		}
 		tpl.nth_of_month = n;
 		return tpl;
 	} else if (strptime(s, "%a", &match)) {
 		tpl.weekday = match.tm_wday + 1;
 		if (!star) {
-			tpl.year = TODAY->tm_mday + 2000;
+			tpl.year = TODAY->tm_year + 1900;
 		}
 		tpl.nth_of_month = n;
 		return tpl;
@@ -247,7 +247,7 @@ struct tpl parse_date(char *s) {
 		tpl.month = match.tm_mon + 1;
 		tpl.day = match.tm_mday;
 		if (!star) {
-			tpl.year = match.tm_mday + 2000;
+			tpl.year = match.tm_year + 1900;
 		}
 		tpl.repeat = n;
 		return tpl;
@@ -255,7 +255,7 @@ struct tpl parse_date(char *s) {
 		tpl.month = match.tm_mon + 1;
 		tpl.day = match.tm_mday;
 		if (!star) {
-			tpl.year = TODAY->tm_mday + 2000;
+			tpl.year = TODAY->tm_year + 1900;
 			if (match.tm_mon < TODAY->tm_mon) {
 				tpl.year += 1;
 			}
@@ -264,7 +264,7 @@ struct tpl parse_date(char *s) {
 	} else if (strptime(s, "%d", &match)) {
 		tpl.day = match.tm_mday;
 		if (!star) {
-			tpl.year = TODAY->tm_mday + 2000;
+			tpl.year = TODAY->tm_year + 1900;
 		}
 		return tpl;
 	}
