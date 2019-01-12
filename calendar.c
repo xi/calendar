@@ -369,22 +369,26 @@ void print_matches(struct tm date, struct line *first) {
 void help() {
 	printf(
 		"BSD calendar reimplementation\n"
-		"usage: calendar [-h] [-A DAYS_AFTER]\n"
+		"usage: calendar [-h] [-B DAYS_BEFORE] [-A DAYS_AFTER]\n"
 	);
 }
 
 #ifndef test
 int main(int argc, char *argv[]) {
-	int days = 3;
+	int days_before = 0;
+	int days_after = 3;
 
 	int c;
-	while ((c = getopt(argc, argv, "hA:")) != -1) {
+	while ((c = getopt(argc, argv, "hB:A:")) != -1) {
 		switch (c) {
 			case 'h':
 				help();
 				return 0;
+			case 'B':
+				days_before = atoi(optarg);
+				break;
 			case 'A':
-				days = 1 + atoi(optarg);
+				days_after = 1 + atoi(optarg);
 				break;
 			case '?':
 				exit(EXIT_FAILURE);
@@ -396,7 +400,7 @@ int main(int argc, char *argv[]) {
 	struct tm *TODAY = today();
 
 	struct tm day;
-	for (int i = 0; i < days; i++) {
+	for (int i = -days_before; i < days_after; i++) {
 		day = add_days(*TODAY, i);
 		print_matches(day, first);
 	}
