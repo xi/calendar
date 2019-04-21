@@ -198,6 +198,11 @@ bool is_match(struct tpl tpl, struct tm date) {
 	return true;
 }
 
+void invalid_date(char *s) {
+	fprintf(stderr, "Error: Invalid date template: %s\n", s);
+	exit(1);
+}
+
 struct tpl parse_date(char *s) {
 	struct tm *TODAY = today();
 	struct tpl tpl = mktpl();
@@ -205,10 +210,18 @@ struct tpl parse_date(char *s) {
 	int n = 0;
 	if (strchr(s, '+')) {
 		strtok(s, "+");
-		n = atoi(strtok(NULL, ""));
+		char *s_n = strtok(NULL, "");
+		if (s_n == NULL) {
+			invalid_date(s);
+		}
+		n = atoi(s_n);
 	} else if (strchr(s, '-')) {
 		strtok(s, "-");
-		n = -atoi(strtok(NULL, ""));
+		char *s_n = strtok(NULL, "");
+		if (s_n == NULL) {
+			invalid_date(s);
+		}
+		n = -atoi(s_n);
 	}
 
 	/* easter */
@@ -274,8 +287,7 @@ struct tpl parse_date(char *s) {
 		return tpl;
 	}
 
-	fprintf(stderr, "Error: Invalid date template: %s\n", s);
-	exit(1);
+	invalid_date(s);
 }
 
 struct line *parse_line(char *s_line) {
