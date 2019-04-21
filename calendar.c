@@ -311,7 +311,10 @@ struct line *get_lines(char *path) {
 	free(cmd);
 	while (fgets(s_line, sizeof(s_line) - 1, fp) != NULL) {
 		if (strlen(s_line) > 1) {
-			if (!first) {
+			if (!strchr(s_line, '\t')) {
+				fprintf(stderr, "Error: Invalid line: %s\n", s_line);
+				exit(1);
+			} else if (!first) {
 				line = parse_line(s_line);
 				first = line;
 			} else {
