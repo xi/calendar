@@ -395,7 +395,12 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	struct line *first = get_lines("~/.calendar/calendar");
+	char* path = "~/.calendar/calendar";
+	if (argv[optind] != NULL) {
+		path = argv[optind];
+	}
+
+	struct line *first = get_lines(path);
 
 	struct tm *TODAY = today();
 
