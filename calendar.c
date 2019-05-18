@@ -200,7 +200,6 @@ bool is_match(struct tpl tpl, struct tm date) {
 
 void invalid_date(char *s) {
 	fprintf(stderr, "Error: Invalid date template: %s\n", s);
-	exit(1);
 }
 
 struct tpl parse_date(char *s) {
@@ -213,6 +212,7 @@ struct tpl parse_date(char *s) {
 		char *s_n = strtok(NULL, "");
 		if (s_n == NULL) {
 			invalid_date(s);
+			exit(1);
 		}
 		n = atoi(s_n);
 	} else if (strchr(s, '-')) {
@@ -220,6 +220,7 @@ struct tpl parse_date(char *s) {
 		char *s_n = strtok(NULL, "");
 		if (s_n == NULL) {
 			invalid_date(s);
+			exit(1);
 		}
 		n = -atoi(s_n);
 	}
@@ -288,6 +289,7 @@ struct tpl parse_date(char *s) {
 	}
 
 	invalid_date(s);
+	exit(1);
 }
 
 struct line *parse_line(char *s_line) {
