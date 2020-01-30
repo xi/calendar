@@ -8,7 +8,7 @@
 int tests_run = 0;
 int tests_failed = 0;
 
-static char *test_easter() {
+static char *test_easter(void) {
 	mu_assert("2000", date_comp(easter(2000, false), mkdate(2000, 4, 23)));
 	mu_assert("2001", date_comp(easter(2001, false), mkdate(2001, 4, 15)));
 	mu_assert("2002", date_comp(easter(2002, false), mkdate(2002, 3, 31)));
@@ -43,7 +43,7 @@ static char *test_easter() {
 	return 0;
 }
 
-static char *test_paskha() {
+static char *test_paskha(void) {
 	mu_assert("2000", date_comp(easter(2000, true), mkdate(2000, 4, 30)));
 	mu_assert("2001", date_comp(easter(2001, true), mkdate(2001, 4, 15)));
 	mu_assert("2002", date_comp(easter(2002, true), mkdate(2002, 5,  5)));
@@ -98,7 +98,7 @@ struct tpl parse_date_mut(const char *s) {
 	return tpl;
 }
 
-char *test_parse_date_dd() {
+char *test_parse_date_dd(void) {
 	struct tpl actual = parse_date_mut("13");
 	struct tpl expected = mktpl();
 	expected.year = today()->tm_year + 1900;
@@ -108,7 +108,7 @@ char *test_parse_date_dd() {
 	return 0;
 }
 
-char *test_parse_date_dd_star() {
+char *test_parse_date_dd_star(void) {
 	struct tpl actual = parse_date_mut("13*");
 	struct tpl expected = mktpl();
 	expected.day = 13;
@@ -117,7 +117,7 @@ char *test_parse_date_dd_star() {
 	return 0;
 }
 
-char *test_parse_date_mmdd() {
+char *test_parse_date_mmdd(void) {
 	struct tpl actual = parse_date_mut("02/13");
 	struct tpl expected = mktpl();
 	expected.year = today()->tm_year + 1900 + (today()->tm_mon + 1 > 2 ? 1 : 0);
@@ -128,7 +128,7 @@ char *test_parse_date_mmdd() {
 	return 0;
 }
 
-char *test_parse_date_mmdd_star() {
+char *test_parse_date_mmdd_star(void) {
 	struct tpl actual = parse_date_mut("02/13*");
 	struct tpl expected = mktpl();
 	expected.month = 2;
@@ -138,7 +138,7 @@ char *test_parse_date_mmdd_star() {
 	return 0;
 }
 
-char *test_parse_date_yyyymmdd() {
+char *test_parse_date_yyyymmdd(void) {
 	struct tpl actual = parse_date_mut("1999/02/13");
 	struct tpl expected = mktpl();
 	expected.year = 1999;
@@ -149,7 +149,7 @@ char *test_parse_date_yyyymmdd() {
 	return 0;
 }
 
-char *test_parse_date_yyyymmdd_star() {
+char *test_parse_date_yyyymmdd_star(void) {
 	struct tpl actual = parse_date_mut("1999/02/13*");
 	struct tpl expected = mktpl();
 	expected.month = 2;
@@ -159,7 +159,7 @@ char *test_parse_date_yyyymmdd_star() {
 	return 0;
 }
 
-char *test_parse_date_yyyymmdd_repeat() {
+char *test_parse_date_yyyymmdd_repeat(void) {
 	struct tpl actual = parse_date_mut("1999/02/13+2");
 	struct tpl expected = mktpl();
 	expected.year = 1999;
@@ -171,7 +171,7 @@ char *test_parse_date_yyyymmdd_repeat() {
 	return 0;
 }
 
-char *test_parse_date_weekday() {
+char *test_parse_date_weekday(void) {
 	struct tpl actual = parse_date_mut("Sat");
 	struct tpl expected = mktpl();
 	expected.weekday = 7;
@@ -180,7 +180,7 @@ char *test_parse_date_weekday() {
 	return 0;
 }
 
-char *test_parse_date_weekday_with_nth_of_month() {
+char *test_parse_date_weekday_with_nth_of_month(void) {
 	struct tpl actual = parse_date_mut("Sat-1");
 	struct tpl expected = mktpl();
 	expected.weekday = 7;
@@ -190,7 +190,7 @@ char *test_parse_date_weekday_with_nth_of_month() {
 	return 0;
 }
 
-char *test_parse_date_mm_weekday() {
+char *test_parse_date_mm_weekday(void) {
 	struct tpl actual = parse_date_mut("02/Sat+2");
 	struct tpl expected = mktpl();
 	expected.month = 2;
@@ -201,7 +201,7 @@ char *test_parse_date_mm_weekday() {
 	return 0;
 }
 
-char *test_parse_date_yyyymm_weekday() {
+char *test_parse_date_yyyymm_weekday(void) {
 	struct tpl actual = parse_date_mut("1999/02/Sat+2");
 	struct tpl expected = mktpl();
 	expected.year = 1999;
@@ -213,7 +213,7 @@ char *test_parse_date_yyyymm_weekday() {
 	return 0;
 }
 
-char *test_parse_date_easter() {
+char *test_parse_date_easter(void) {
 	struct tpl actual = parse_date_mut("Easter");
 	struct tpl expected = mktpl();
 	expected.from_easter = 0;
@@ -222,7 +222,7 @@ char *test_parse_date_easter() {
 	return 0;
 }
 
-char *test_parse_date_easter_with_offset() {
+char *test_parse_date_easter_with_offset(void) {
 	struct tpl actual = parse_date_mut("Easter+30");
 	struct tpl expected = mktpl();
 	expected.from_easter = 30;
@@ -231,7 +231,7 @@ char *test_parse_date_easter_with_offset() {
 	return 0;
 }
 
-char *test_is_match_dd() {
+char *test_is_match_dd(void) {
 	struct tpl tpl = mktpl();
 	tpl.day = 13;
 
@@ -240,7 +240,7 @@ char *test_is_match_dd() {
 	return 0;
 }
 
-char *test_is_match_mmdd() {
+char *test_is_match_mmdd(void) {
 	struct tpl tpl = mktpl();
 	tpl.month = 2;
 	tpl.day = 13;
@@ -251,7 +251,7 @@ char *test_is_match_mmdd() {
 	return 0;
 }
 
-char *test_is_match_yyyymmdd() {
+char *test_is_match_yyyymmdd(void) {
 	struct tpl tpl = mktpl();
 	tpl.year = 1999;
 	tpl.month = 2;
@@ -264,7 +264,7 @@ char *test_is_match_yyyymmdd() {
 	return 0;
 }
 
-char *test_is_match_yyyymmdd_repeat() {
+char *test_is_match_yyyymmdd_repeat(void) {
 	struct tpl tpl = mktpl();
 	tpl.year = 1999;
 	tpl.month = 2;
@@ -278,7 +278,7 @@ char *test_is_match_yyyymmdd_repeat() {
 	return 0;
 }
 
-char *test_is_match_weekday() {
+char *test_is_match_weekday(void) {
 	struct tpl tpl = mktpl();
 	tpl.weekday = 7;
 
@@ -287,7 +287,7 @@ char *test_is_match_weekday() {
 	return 0;
 }
 
-char *test_is_match_weekday_with_nth_of_month() {
+char *test_is_match_weekday_with_nth_of_month(void) {
 	struct tpl tpl = mktpl();
 	tpl.weekday = 7;
 	tpl.nth_of_month = 2;
@@ -298,7 +298,7 @@ char *test_is_match_weekday_with_nth_of_month() {
 	return 0;
 }
 
-char *test_is_match_mm_weekday() {
+char *test_is_match_mm_weekday(void) {
 	struct tpl tpl = mktpl();
 	tpl.month = 2;
 	tpl.weekday = 7;
@@ -311,7 +311,7 @@ char *test_is_match_mm_weekday() {
 	return 0;
 }
 
-char *test_is_match_yyyymm_weekday() {
+char *test_is_match_yyyymm_weekday(void) {
 	struct tpl tpl = mktpl();
 	tpl.year = 1999;
 	tpl.month = 2;
@@ -326,7 +326,7 @@ char *test_is_match_yyyymm_weekday() {
 	return 0;
 }
 
-char *test_is_match_easter() {
+char *test_is_match_easter(void) {
 	struct tpl tpl = mktpl();
 	tpl.from_easter = 0;
 	tpl.easter = true;
@@ -336,7 +336,7 @@ char *test_is_match_easter() {
 	return 0;
 }
 
-char *test_is_match_easter_with_offset() {
+char *test_is_match_easter_with_offset(void) {
 	struct tpl tpl = mktpl();
 	tpl.from_easter = 2;
 	tpl.easter = true;
@@ -346,7 +346,7 @@ char *test_is_match_easter_with_offset() {
 	return 0;
 }
 
-char *test_is_match_paskha() {
+char *test_is_match_paskha(void) {
 	struct tpl tpl = mktpl();
 	tpl.from_paskha = 0;
 	tpl.paskha = true;
@@ -356,7 +356,7 @@ char *test_is_match_paskha() {
 	return 0;
 }
 
-char *test_is_match_paskha_with_offset() {
+char *test_is_match_paskha_with_offset(void) {
 	struct tpl tpl = mktpl();
 	tpl.from_paskha = -2;
 	tpl.paskha = true;

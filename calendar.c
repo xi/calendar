@@ -76,7 +76,7 @@ struct tm mkdate(int year, int month, int day) {
 	return tm;
 }
 
-struct tpl mktpl() {
+struct tpl mktpl(void) {
 	struct tpl tpl = {
 		.year=0,
 		.month=0,
@@ -92,7 +92,7 @@ struct tpl mktpl() {
 	return tpl;
 }
 
-struct tm *today() {
+struct tm *today(void) {
 	time_t t = time(NULL);
 	return localtime(&t);
 }
