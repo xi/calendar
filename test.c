@@ -402,6 +402,7 @@ int main(int argc, char **argv) {
 
 	printf("Tests run: %d\n", tests_run);
 	if (tests_failed) {
+		printf("Tests failed: %d\n", tests_failed);
 		return EXIT_FAILURE;
 	}
 }
