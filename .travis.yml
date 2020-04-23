@@ -1,5 +1,0 @@
-language: c
-script:
-  - make run_tests
-notifications:
-  email: false
