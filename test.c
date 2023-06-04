@@ -91,7 +91,7 @@ bool tpl_comp(struct tpl a, struct tpl b) {
 }
 
 struct tpl parse_date_mut(const char *s) {
-	char *_s = malloc(strlen(s));
+	char *_s = malloc(strlen(s) + 1);
 	strcpy(_s, s);
 	struct tpl tpl = parse_date(_s);
 	free(_s);
