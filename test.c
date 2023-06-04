@@ -391,8 +391,8 @@ int main(int argc, char **argv) {
 	mu_test("matches mm/dd", test_is_match_mmdd);
 	mu_test("matches yyyy/mm/dd", test_is_match_yyyymmdd);
 	mu_test("matches yyyy/mm/dd+n", test_is_match_yyyymmdd_repeat);
-	mu_test("matches wekday", test_is_match_weekday);
-	mu_test("matches weekdat+n", test_is_match_weekday_with_nth_of_month);
+	mu_test("matches weekday", test_is_match_weekday);
+	mu_test("matches weekday+n", test_is_match_weekday_with_nth_of_month);
 	mu_test("matches mm/weekday", test_is_match_mm_weekday);
 	mu_test("matches yyyy/mm/weekday", test_is_match_yyyymm_weekday);
 	mu_test("matches easter", test_is_match_easter);
