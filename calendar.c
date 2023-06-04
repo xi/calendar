@@ -403,7 +403,6 @@ void print_matches(struct tm date, struct line *first) {
 	char ds[11];
 	strftime(ds, 11, "%a %b %d", &date);
 
-#define byday
 #ifdef byday
 	printf("%s\t", ds);
 	struct line *line = first;
