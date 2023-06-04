@@ -25,6 +25,7 @@
  *     1999/06/15*	June 15 (usefull for birthdays)
  *     1999/05/Sun+2	second Sunday in May 1999
  *     1999/06/15+2	June 15 1999 and every second week since then
+ *     1999/06/15:1999/06/20	From June 15 1999 to June 20 1999
  *
  *     # removed formats (mostly alternative formats)
  *     Jun. 15	06/15
@@ -51,6 +52,9 @@ struct tpl {
 	int year;
 	int month;
 	int day;
+	int end_year;
+	int end_month;
+	int end_day;
 	int repeat;
 	int weekday;  /* starting with sunday */
 	int nth_of_month;
@@ -81,6 +85,9 @@ struct tpl mktpl(void) {
 		.year=0,
 		.month=0,
 		.day=0,
+		.end_year=0,
+		.end_month=0,
+		.end_day=0,
 		.repeat=0,
 		.weekday=0,
 		.nth_of_month=0,
@@ -141,11 +148,38 @@ bool date_comp(struct tm a, struct tm b) {
 }
 
 bool is_match(struct tpl tpl, struct tm date) {
+	struct tm reference;
+	time_t delta;
+	int delta_days;
+
+	if (tpl.end_day) {
+		if (tpl.day && tpl.month && tpl.year && tpl.end_month && tpl.end_year) {
+			reference = mkdate(tpl.year, tpl.month, tpl.day);
+			delta = difftime(mktime(&reference), mktime(&date));
+			delta_days = delta / 60 / 60 / 24;
+			if (delta_days > 0) {
+				return false;
+			}
+
+			reference = mkdate(tpl.end_year, tpl.end_month, tpl.end_day);
+			delta = difftime(mktime(&reference), mktime(&date));
+			delta_days = delta / 60 / 60 / 24;
+			if (delta_days < 0) {
+				return false;
+			}
+
+			return true;
+		} else {
+			fprintf(stderr, "Error: incomplete range\n");
+			exit(1);
+		}
+	}
+
 	if (tpl.repeat) {
 		if (tpl.day && tpl.month && tpl.year) {
-			struct tm reference = mkdate(tpl.year, tpl.month, tpl.day);
-			time_t delta = difftime(mktime(&reference), mktime(&date));
-			int delta_days = delta / 60 / 60 / 24;
+			reference = mkdate(tpl.year, tpl.month, tpl.day);
+			delta = difftime(mktime(&reference), mktime(&date));
+			delta_days = delta / 60 / 60 / 24;
 			if (delta_days % (7 * tpl.repeat) != 0) {
 				return false;
 			}
@@ -267,6 +301,21 @@ struct tpl parse_date(char *s) {
 		tpl.day = match.tm_mday;
 		if (!star) {
 			tpl.year = match.tm_year + 1900;
+		}
+		if (strchr(s, ':')) {
+			strtok(s, ":");
+			char *s_n = strtok(NULL, "");
+			if (s_n == NULL) {
+				invalid_date(s);
+				exit(1);
+			} else if (strptime(s_n, "%Y/%m/%d", &match)) {
+				tpl.end_month = match.tm_mon + 1;
+				tpl.end_day = match.tm_mday;
+				tpl.end_year = match.tm_year + 1900;
+			} else {
+				invalid_date(s);
+				exit(1);
+			}
 		}
 		tpl.repeat = n;
 		return tpl;

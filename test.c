@@ -171,6 +171,20 @@ char *test_parse_date_yyyymmdd_repeat(void) {
 	return 0;
 }
 
+char *test_parse_date_range(void) {
+	struct tpl actual = parse_date_mut("1999/03/01:2000/05/02");
+	struct tpl expected = mktpl();
+	expected.year = 1999;
+	expected.month = 3;
+	expected.day = 1;
+	expected.end_year = 2000;
+	expected.end_month = 5;
+	expected.end_day = 2;
+
+	mu_assert("1999/03/01:2000/05/02", tpl_comp(actual, expected));
+	return 0;
+}
+
 char *test_parse_date_weekday(void) {
 	struct tpl actual = parse_date_mut("Sat");
 	struct tpl expected = mktpl();
@@ -288,6 +302,23 @@ char *test_is_match_yyyymmdd_repeat(void) {
 	return 0;
 }
 
+char *test_is_match_range(void) {
+	struct tpl tpl = mktpl();
+	tpl.year = 1999;
+	tpl.month = 2;
+	tpl.day = 13;
+	tpl.end_year = 2000;
+	tpl.end_month = 3;
+	tpl.end_day = 15;
+
+	mu_assert("start does match", is_match(tpl, mkdate(1999, 2, 13)));
+	mu_assert("end does match", is_match(tpl, mkdate(2000, 3, 15)));
+	mu_assert("between does match", is_match(tpl, mkdate(1999, 8, 2)));
+	mu_assert("before start does not match", !is_match(tpl, mkdate(1999, 2, 12)));
+	mu_assert("after end does not match", !is_match(tpl, mkdate(2000, 3, 16)));
+	return 0;
+}
+
 char *test_is_match_weekday(void) {
 	struct tpl tpl = mktpl();
 	tpl.weekday = 7;
@@ -400,6 +431,7 @@ int main(int argc, char **argv) {
 	mu_test("parses yyyy/mm/dd", test_parse_date_yyyymmdd);
 	mu_test("parses yyyy/mm/dd*", test_parse_date_yyyymmdd_star);
 	mu_test("parses yyyy/mm/dd+n", test_parse_date_yyyymmdd_repeat);
+	mu_test("parses yyyy/mm/dd:yyyy/mm/dd", test_parse_date_range);
 	mu_test("parses weekday", test_parse_date_weekday);
 	mu_test("parses weekday+n", test_parse_date_weekday_with_nth_of_month);
 	mu_test("parses weekday-n", test_parse_date_weekday_with_nth_last_of_month);
@@ -413,6 +445,7 @@ int main(int argc, char **argv) {
 	mu_test("matches mm/dd", test_is_match_mmdd);
 	mu_test("matches yyyy/mm/dd", test_is_match_yyyymmdd);
 	mu_test("matches yyyy/mm/dd+n", test_is_match_yyyymmdd_repeat);
+	mu_test("matches yyyy/mm/dd:yyyy/mm/dd", test_is_match_range);
 	mu_test("matches weekday", test_is_match_weekday);
 	mu_test("matches weekday+n", test_is_match_weekday_with_nth_of_month);
 	mu_test("matches weekday-n", test_is_match_weekday_with_nth_last_of_month);
