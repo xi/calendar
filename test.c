@@ -181,6 +181,16 @@ char *test_parse_date_weekday(void) {
 }
 
 char *test_parse_date_weekday_with_nth_of_month(void) {
+	struct tpl actual = parse_date_mut("Sat+1");
+	struct tpl expected = mktpl();
+	expected.weekday = 7;
+	expected.nth_of_month = 1;
+
+	mu_assert("Sat+1", tpl_comp(actual, expected));
+	return 0;
+}
+
+char *test_parse_date_weekday_with_nth_last_of_month(void) {
 	struct tpl actual = parse_date_mut("Sat-1");
 	struct tpl expected = mktpl();
 	expected.weekday = 7;
@@ -298,6 +308,17 @@ char *test_is_match_weekday_with_nth_of_month(void) {
 	return 0;
 }
 
+char *test_is_match_weekday_with_nth_last_of_month(void) {
+	struct tpl tpl = mktpl();
+	tpl.weekday = 7;
+	tpl.nth_of_month = -2;
+
+	mu_assert("date does match", is_match(tpl, mkdate(1999, 2, 20)));
+	mu_assert("next day does not match", !is_match(tpl, mkdate(1999, 2, 21)));
+	mu_assert("one week later does not match", !is_match(tpl, mkdate(1999, 2, 27)));
+	return 0;
+}
+
 char *test_is_match_mm_weekday(void) {
 	struct tpl tpl = mktpl();
 	tpl.month = 2;
@@ -381,6 +402,7 @@ int main(int argc, char **argv) {
 	mu_test("parses yyyy/mm/dd+n", test_parse_date_yyyymmdd_repeat);
 	mu_test("parses weekday", test_parse_date_weekday);
 	mu_test("parses weekday+n", test_parse_date_weekday_with_nth_of_month);
+	mu_test("parses weekday-n", test_parse_date_weekday_with_nth_last_of_month);
 	mu_test("parses mm/weekday", test_parse_date_mm_weekday);
 	mu_test("parses yyyy/mm/weekday", test_parse_date_yyyymm_weekday);
 	mu_test("parses easter", test_parse_date_easter);
@@ -393,6 +415,7 @@ int main(int argc, char **argv) {
 	mu_test("matches yyyy/mm/dd+n", test_is_match_yyyymmdd_repeat);
 	mu_test("matches weekday", test_is_match_weekday);
 	mu_test("matches weekday+n", test_is_match_weekday_with_nth_of_month);
+	mu_test("matches weekday-n", test_is_match_weekday_with_nth_last_of_month);
 	mu_test("matches mm/weekday", test_is_match_mm_weekday);
 	mu_test("matches yyyy/mm/weekday", test_is_match_yyyymm_weekday);
 	mu_test("matches easter", test_is_match_easter);
