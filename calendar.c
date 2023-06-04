@@ -36,6 +36,10 @@
  *
  *     May Sun+2	05/Sun+2
  *     04/SunLast	04/Sun-1
+ *
+ * This implementation also adds some support for metadata:
+ *
+ *     1999/06/15	my description	color:2
  */
 
 #define _XOPEN_SOURCE 500
@@ -67,6 +71,7 @@ struct tpl {
 struct line {
 	struct line *next;
 	struct tpl tpl;
+	int color;
 	char *desc;
 };
 
@@ -342,12 +347,21 @@ struct tpl parse_date(char *s) {
 }
 
 struct line *parse_line(char *s_line) {
+	s_line[strlen(s_line) - 1] = '\0';  // remove newline
 	char *s_date = strtok(s_line, "\t");
-	const char *desc = strtok(NULL, "\n");
+
 	struct line *line = (struct line *)malloc(sizeof(struct line));
-	line->tpl = parse_date(s_date);
-	line->desc = strdup(desc);
+	line->desc = strdup(strtok(NULL, "\t"));
 	line->next = NULL;
+	line->color = 0;
+
+	char *token;
+	while ((token = strtok(NULL, "\t"))) {
+		sscanf(token, "color:%i", &line->color);
+	}
+
+	line->tpl = parse_date(s_date);
+
 	return line;
 }
 
@@ -399,7 +413,7 @@ void free_lines(struct line *line) {
 	}
 }
 
-void print_matches(struct tm date, struct line *first) {
+void print_matches(struct tm date, struct line *first, bool use_color) {
 	char ds[11];
 	strftime(ds, 11, "%a %b %d", &date);
 
@@ -411,7 +425,11 @@ void print_matches(struct tm date, struct line *first) {
 		if (is_match(line->tpl, date)) {
 			if (!is_first) printf("; ");
 			is_first = false;
-			printf("%s", line->desc);
+			if (use_color && line->color) {
+				printf("\033[0;3%im%s\033[0m", line->color, line->desc);
+			} else {
+				printf("%s", line->desc);
+			}
 		}
 		line = line->next;
 	}
@@ -424,7 +442,11 @@ void print_matches(struct tm date, struct line *first) {
 			if (!line->tpl.year) {
 				printf("*");
 			}
-			printf("\t%s\n", line->desc);
+			if (use_color && line->color) {
+				printf("\t\033[0;3%im%s\033[0m\n", line->color, line->desc);
+			} else {
+				printf("\t%s\n", line->desc);
+			}
 		}
 		line = line->next;
 	}
@@ -442,6 +464,7 @@ void help() {
 int main(int argc, char *argv[]) {
 	int days_before = 0;
 	int days_after = 3;
+	bool use_color = isatty(1);
 
 	int c;
 	while ((c = getopt(argc, argv, "hB:A:")) != -1) {
@@ -472,7 +495,7 @@ int main(int argc, char *argv[]) {
 	struct tm day;
 	for (int i = -days_before; i < days_after; i++) {
 		day = add_days(*TODAY, i);
-		print_matches(day, first);
+		print_matches(day, first, use_color);
 	}
 
 	free_lines(first);
